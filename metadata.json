@@ -1,0 +1,12 @@
+{
+  "name": "Remix Haven - Private Couple Space",
+  "description": "End-to-end encrypted private chat, HD video calling, and audio calling for couples.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
