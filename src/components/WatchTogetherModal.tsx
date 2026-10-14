@@ -205,6 +205,19 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
     }
   }, [currentMedia?.id]);
 
+  // Auto-fallback timeout timer: if stream iframe takes > 6s, automatically switch to next server (1 -> 2 -> 3 -> 4)
+  useEffect(() => {
+    if (!currentMedia || currentMedia.type === 'video' || currentMedia.type === 'youtube') return;
+    const timer = setTimeout(() => {
+      const curServer = (currentMedia.server && [1, 2, 3, 4].includes(currentMedia.server)) ? currentMedia.server : 1;
+      if (curServer < 4) {
+        const next = (curServer + 1) as 1 | 2 | 3 | 4;
+        handleSwitchVidukiServer(next);
+      }
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [currentMedia?.id, currentMedia?.server]);
+
   // Viduki.net Movie Streaming API State
   const [vidukiConfig, setVidukiConfig] = useState<VidukiConfig>(DEFAULT_VIDUKI_CONFIG);
   const [showVidukiModal, setShowVidukiModal] = useState(false);
