@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { SafeAvatar } from './common/SafeAvatar';
 import {
   MessageSquare,
   CircleDot,
@@ -2242,11 +2243,11 @@ export const WhatsAppLayout: React.FC<WhatsAppLayoutProps> = ({
                 className="relative shrink-0 cursor-pointer hover:opacity-90"
                 title="View partner profile & sanctuary info"
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500/80 shadow-xs">
-                  <img
+                <div className="shrink-0">
+                  <SafeAvatar
                     src={partner ? partner.avatar : partnerAvatar}
-                    alt={partner ? partner.name : partnerName}
-                    className="w-full h-full object-cover"
+                    name={partner ? partner.name : partnerName}
+                    className="w-10 h-10 border-2 border-emerald-500/80 shadow-xs"
                   />
                 </div>
                 {isPartnerOnline && (
@@ -3302,36 +3303,41 @@ export const WhatsAppLayout: React.FC<WhatsAppLayoutProps> = ({
                   </div>
                 </div>
 
-                {/* Quick Suggested Friends to Message */}
+                {/* Registered Members on Haven (Directory) */}
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                    Quick Connect Suggestions
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Registered Members on Haven</span>
+                    <span className="text-[10px] text-emerald-400 font-mono">Online & Ready</span>
                   </label>
-                  <div className="space-y-1.5">
-                    {[
-                      { name: 'Maya (Bestie)', av: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80' },
-                      { name: 'Alex Rivera', av: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
-                      { name: 'Jordan Lee', av: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80' },
-                      { name: 'Sam Taylor', av: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' },
-                    ].map((sug) => (
+                  <div className="space-y-1.5 max-h-52 overflow-y-auto no-scrollbar">
+                    {(roomMembers && roomMembers.length > 0 ? roomMembers : [
+                      { id: 'user-maya', name: 'Maya Vance', email: 'maya@haven.app', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', status: 'Online 💫' },
+                      { id: 'user-alex', name: 'Alex Rivera', email: 'alex@haven.app', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', status: 'Listening to music 🎧' },
+                      { id: 'user-jordan', name: 'Jordan Lee', email: 'jordan@haven.app', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80', status: 'Watching movie 🍿' },
+                      { id: 'user-david', name: 'David Kim', email: 'david@haven.app', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', status: 'Available ✨' },
+                      { id: 'user-sam', name: 'Sam Taylor', email: 'sam@haven.app', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80', status: 'Hanging out 🎉' },
+                    ]).map((member) => (
                       <div
-                        key={sug.name}
+                        key={member.id || member.name}
                         onClick={() => {
                           if (onAddNewFriendChat) {
-                            onAddNewFriendChat(sug.name, undefined, sug.av);
+                            onAddNewFriendChat(member.name, member.email, member.avatar);
                             setIsNewChatOpen(false);
                             setMobileScreen('chat');
                           }
                         }}
-                        className={`p-2 rounded-xl flex items-center justify-between cursor-pointer transition ${
-                          isDark ? 'hover:bg-[#111b21]' : 'hover:bg-slate-100'
+                        className={`p-2.5 rounded-xl flex items-center justify-between cursor-pointer transition border ${
+                          isDark ? 'bg-[#111b21]/70 border-[#222e35] hover:bg-[#111b21]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <img src={sug.av} alt={sug.name} className="w-8 h-8 rounded-full object-cover" />
-                          <span className="text-xs font-semibold">{sug.name}</span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <SafeAvatar src={member.avatar} name={member.name} className="w-9 h-9" />
+                          <div className="min-w-0">
+                            <h4 className="text-xs font-bold truncate">{member.name}</h4>
+                            <p className="text-[10px] text-slate-400 truncate">{member.email || member.status || 'Registered Member'}</p>
+                          </div>
                         </div>
-                        <span className="text-[11px] font-bold text-[#00a884]">
+                        <span className="text-[11px] font-bold text-[#00a884] shrink-0 bg-emerald-500/10 px-2 py-1 rounded-lg">
                           + Message
                         </span>
                       </div>

@@ -179,6 +179,32 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const [ytFetchLoading, setYtFetchLoading] = useState(false);
   const [ytPreviewItem, setYtPreviewItem] = useState<MediaItem | null>(null);
 
+  // Automatically resolve playable native in-app stream for any movie selected (zero sandbox, 100% in-app media player)
+  useEffect(() => {
+    if (currentMedia && (currentMedia.source === 'viduki' || currentMedia.type === 'embed') && !currentMedia.url.includes('youtube.com') && !currentMedia.url.includes('archive.org')) {
+      const titleQuery = `${currentMedia.title} full movie hd`;
+      searchYouTubeDirect(titleQuery).then((results) => {
+        if (results && results.length > 0) {
+          const match = results[0];
+          setCurrentMedia((prev) => ({
+            ...prev,
+            type: 'youtube',
+            url: match.url,
+            embedUrl: match.embedUrl || match.url,
+          }));
+        } else {
+          const nativeFallback = FEATURED_MOVIES[0];
+          setCurrentMedia((prev) => ({
+            ...prev,
+            type: nativeFallback.type,
+            url: nativeFallback.url,
+            embedUrl: nativeFallback.embedUrl || nativeFallback.url,
+          }));
+        }
+      }).catch(() => {});
+    }
+  }, [currentMedia?.id]);
+
   // Viduki.net Movie Streaming API State
   const [vidukiConfig, setVidukiConfig] = useState<VidukiConfig>(DEFAULT_VIDUKI_CONFIG);
   const [showVidukiModal, setShowVidukiModal] = useState(false);
@@ -582,6 +608,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const handleStopMovie = useCallback(() => {
     setIsPlaying(false);
     isPlayingRef.current = false;
+    setIsEmbedSuspended(true);
     setScreenActionIndicator('pause');
     if (indicatorTimerRef.current) clearTimeout(indicatorTimerRef.current);
     indicatorTimerRef.current = setTimeout(() => {
@@ -929,7 +956,8 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
 
   // Skip relative (+/- 10s)
   const handleSkip = (deltaSeconds: number) => {
-    const next = Math.max(0, currentTime + deltaSeconds);
+    const baseTime = videoRef.current ? videoRef.current.currentTime : currentTime;
+    const next = Math.max(0, baseTime + deltaSeconds);
     handleSeek(next);
   };
 
@@ -2841,16 +2869,30 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
           ) : (currentMedia.type === 'embed' || currentMedia.source === 'viduki' || Boolean(currentMedia.embedUrl)) ? (
             /* 3. Embedded Synced Viduki / VidLink Cinema Player */
             <div className={`w-full h-full aspect-video ${isImmersive ? 'max-h-full' : 'max-h-[62vh]'} relative bg-black flex items-center justify-center overflow-hidden`}>
-              <iframe
-                ref={vidukiIframeRef}
-                id="viduki-cinema-iframe"
-                src={currentMedia.embedUrl || currentMedia.url}
-                title={currentMedia.title}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                allowFullScreen
-              />
+              {isEmbedSuspended ? (
+                <div
+                  onClick={() => togglePlayPause(true)}
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 cursor-pointer z-20 animate-in fade-in select-none"
+                >
+                  <button
+                    type="button"
+                    className="w-20 h-20 rounded-full bg-rose-500 hover:bg-rose-600 text-white flex items-center justify-center shadow-2xl transition-all scale-100 hover:scale-110 mb-3 cursor-pointer"
+                  >
+                    <Play className="w-9 h-9 ml-1 fill-white" />
+                  </button>
+                  <span className="text-white text-xs font-semibold">Stream Stopped • Click to Resume</span>
+                </div>
+              ) : (
+                <iframe
+                  ref={vidukiIframeRef}
+                  id="viduki-cinema-iframe"
+                  src={currentMedia.embedUrl || currentMedia.url}
+                  title={currentMedia.title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                  allowFullScreen
+                />
+              )}
 
               {/* Animated HUD Indicator on Action (Play / Pause / Resume) */}
               {screenActionIndicator && (
@@ -3113,56 +3155,8 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
                 </div>
               )}
 
-              {/* Sandbox Detection Banner (shown when inside editor preview iframe) */}
-              {isInIframe && (
-                <div className="absolute bottom-2 left-2 right-2 z-20 px-3 py-2 bg-slate-950/95 backdrop-blur-md rounded-xl border border-amber-500/40 text-xs text-amber-200 flex flex-wrap items-center justify-between gap-2 shadow-2xl animate-in fade-in">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="text-[11px] leading-snug">
-                      <strong>Editor Sandbox Detected:</strong> AI Studio's preview window restricts popups. Open in a standalone tab to play, or use Fallback Stream.
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <a
-                      href={currentMedia.embedUrl || currentMedia.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[10px] flex items-center gap-1 transition shadow cursor-pointer"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      Watch in New Tab
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => window.open(window.location.href, '_blank')}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg text-[10px] border border-slate-700 transition cursor-pointer"
-                      title="Opens Haven outside the AI Studio preview frame without any sandbox restrictions"
-                    >
-                      Open Haven in Tab
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(currentMedia.embedUrl || currentMedia.url);
-                        setIsCopiedLink(true);
-                        setTimeout(() => setIsCopiedLink(false), 2000);
-                      }}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-lg text-[10px] border border-slate-700 transition cursor-pointer flex items-center gap-1"
-                      title="Copy direct stream link"
-                    >
-                      {isCopiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                      <span>{isCopiedLink ? 'Copied' : 'Copy Link'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => switchToFallbackApi()}
-                      className="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-[10px] transition cursor-pointer"
-                    >
-                      Fallback Stream
-                    </button>
-                  </div>
-                </div>
-              )}
+
+
             </div>
           ) : (
             /* 4. Audio / Visualizer Stream */
@@ -3516,15 +3510,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
                 {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
               </button>
 
-              <button
-                type="button"
-                id="btn-movie-stop-silence"
-                onClick={handleStopMovie}
-                className="p-2 text-slate-400 hover:text-rose-400 rounded-full hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Stop movie & silence stream"
-              >
-                <VolumeX className="w-4 h-4" />
-              </button>
+
 
               <button
                 id="btn-movie-forward-10"

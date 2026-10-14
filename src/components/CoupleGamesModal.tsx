@@ -575,20 +575,7 @@ export const CoupleGamesModal: React.FC<CoupleGamesModalProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* Audio Call & Play Action Button (when not currently in call) */}
-            {!isCallActive && onStartCall && (
-              <button
-                type="button"
-                id="btn-game-header-start-call"
-                onClick={() => onStartCall('audio')}
-                className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs hover:shadow transition flex items-center gap-1.5 text-xs font-bold cursor-pointer"
-                title="Audio Call partner to talk while playing"
-              >
-                <Phone className="w-3.5 h-3.5 animate-pulse" />
-                <span className="hidden sm:inline">Call & Play</span>
-                <span className="sm:hidden">Call</span>
-              </button>
-            )}
+
 
             {/* Fullscreen Clear View Toggle Button */}
             <button

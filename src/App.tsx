@@ -69,6 +69,7 @@ import { SquadCallModal } from './components/SquadCallModal';
 import { IncomingCallModal } from './components/IncomingCallModal';
 import { SecurityVerifyModal } from './components/SecurityVerifyModal';
 import { SettingsModal } from './components/SettingsModal';
+import { MutualDeletionModal } from './components/MutualDeletionModal';
 import { LoveBurstOverlay } from './components/LoveBurstOverlay';
 import { LiveCanvasModal } from './components/LiveCanvasModal';
 import { WatchTogetherModal } from './components/WatchTogetherModal';
@@ -116,7 +117,7 @@ import {
   deleteSavedSpace,
   leaveSavedGroup,
 } from './utils/spaceRegistry';
-import { SavedSpaceRecord, AuthUser, SpaceEmailInvite, SpaceType } from './types';
+import { SavedSpaceRecord, AuthUser, SpaceEmailInvite, SpaceType, PendingSpaceDeletion } from './types';
 import { MUSIC_CATALOG, musicEngine } from './utils/musicEngine';
 import { getSavedTheme, saveTheme, THEME_PRESETS, ThemeConfig, ThemeId, ColorMode, getSavedColorMode, saveColorMode } from './utils/theme';
 import { WallpaperSettings, getSavedWallpaperSettings, saveWallpaperSettings } from './utils/wallpaper';
@@ -690,6 +691,8 @@ export default function App() {
   // Modals & Overlays
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showMutualDeletionModal, setShowMutualDeletionModal] = useState(false);
+  const [pendingDeletion, setPendingDeletion] = useState<PendingSpaceDeletion | null>(null);
   const [isSpacesManagerOpen, setIsSpacesManagerOpen] = useState(false);
   const [isSinglesLoungeOpen, setIsSinglesLoungeOpen] = useState<boolean>(() => {
     try {
@@ -4123,6 +4126,55 @@ export default function App() {
         onOpenTouchMelt={() => setIsTouchMeltOpen(true)}
         onOpenBlindDilemma={() => setIsBlindDilemmaOpen(true)}
         onOpenScratchCard={() => setIsScratchCardOpen(true)}
+        onOpenMutualDeletion={() => setShowMutualDeletionModal(true)}
+      />
+
+      {/* Mutual Breakup & Permanent Deletion Modal */}
+      <MutualDeletionModal
+        isOpen={showMutualDeletionModal}
+        onClose={() => setShowMutualDeletionModal(false)}
+        pendingDeletion={pendingDeletion}
+        currentUserId={currentUserId}
+        currentUserName={config?.userName || 'User'}
+        partnerName={config?.partnerName || 'Partner'}
+        roomId={config?.roomId || 'default-room'}
+        spaceType="couple"
+        onRequestDeletion={(reason) => {
+          setPendingDeletion({
+            roomId: config?.roomId || 'default',
+            requestedBy: { id: currentUserId, name: config?.userName || 'User' },
+            status: 'pending',
+            reason: reason || 'Breakup 💔',
+            createdAt: Date.now(),
+          });
+        }}
+        onRespondDeletion={(agree) => {
+          if (agree) {
+            if (config?.roomId) {
+              deleteSavedSpace(config.roomId);
+            }
+            localStorage.removeItem('haven_couple_config');
+            setConfig(null);
+            setPendingDeletion(null);
+            setShowMutualDeletionModal(false);
+            setIsSetupSpaceOpen(true);
+          } else {
+            setPendingDeletion(null);
+          }
+        }}
+        onCancelDeletion={() => {
+          setPendingDeletion(null);
+        }}
+        onAddAnotherPartner={() => {
+          if (config?.roomId) {
+            deleteSavedSpace(config.roomId);
+          }
+          localStorage.removeItem('haven_couple_config');
+          setConfig(null);
+          setPendingDeletion(null);
+          setShowMutualDeletionModal(false);
+          setIsSetupSpaceOpen(true);
+        }}
       />
 
       {/* Spaces Switcher & Multi-Space Registry Modal */}
@@ -4133,8 +4185,11 @@ export default function App() {
         onSwitchSpace={handleSwitchSpace}
         onOpenNewSpaceSetup={() => {
           setIsSpacesManagerOpen(false);
-          // Set config to null so the user can easily create or join another space
           setConfig(null);
+        }}
+        onOpenMutualDeletion={() => {
+          setIsSpacesManagerOpen(false);
+          setShowMutualDeletionModal(true);
         }}
       />
 

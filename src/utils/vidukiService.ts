@@ -37,39 +37,10 @@ export function buildVidukiStreamUrl(params: {
   const s = Math.max(1, Number(params.season) || 1);
   const e = Math.max(1, Number(params.episode) || 1);
 
-  // Server 1: VidLink Fast Pro (Loads in < 100ms, clean player, ad-free stream)
-  if (server === 1) {
-    if (isTv) {
-      return `https://vidlink.pro/tv/${cleanId}/${s}/${e}?primaryColor=${cleanColor}&autoplay=true`;
-    }
-    return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true`;
+  if (isTv) {
+    return `https://viduki.net/${server}/tv/${cleanId}/${s}/${e}?color=${cleanColor}`;
   }
-
-  // Server 2: Viduki Cinema Core
-  if (server === 2) {
-    if (isTv) {
-      return `https://viduki.net/1/tv/${cleanId}/${s}/${e}?color=${cleanColor}`;
-    }
-    return `https://viduki.net/1/movie/${cleanId}?color=${cleanColor}`;
-  }
-
-  // Server 3: Vidsrc Global Stream
-  if (server === 3) {
-    if (isTv) {
-      return `https://vidsrc.to/embed/tv/${cleanId}/${s}/${e}`;
-    }
-    return `https://vidsrc.to/embed/movie/${cleanId}`;
-  }
-
-  // Server 4: Smashy Stream Mirror
-  if (server === 4) {
-    if (isTv) {
-      return `https://player.smashy.stream/tv/${cleanId}?s=${s}&e=${e}`;
-    }
-    return `https://player.smashy.stream/movie/${cleanId}`;
-  }
-
-  return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true`;
+  return `https://viduki.net/${server}/movie/${cleanId}?color=${cleanColor}`;
 }
 
 /**
@@ -1636,9 +1607,14 @@ export async function searchVidukiMovies(query: string, config?: VidukiConfig): 
         for (const item of suggestions) {
           if (!item.id || !item.id.startsWith('tt') || !item.l) continue;
           const isTv = item.qid === 'tvSeries' || item.qid === 'tvMiniSeries';
-          const playUrl = isTv
-            ? `https://viduki.net/${server}/tv/${item.id}/1/1?color=${color}`
-            : `https://viduki.net/${server}/movie/${item.id}?color=${color}`;
+          const playUrl = buildVidukiStreamUrl({
+            id: item.id,
+            server,
+            mediaType: isTv ? 'tv' : 'movie',
+            season: 1,
+            episode: 1,
+            color,
+          });
 
           clientResults.push({
             id: `viduki-${isTv ? 'tv' : 'movie'}-${item.id}`,

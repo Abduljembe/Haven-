@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PWAInstallButton } from './PWAInstallButton';
+import { SafeAvatar } from './common/SafeAvatar';
 import {
   Heart,
   Phone,
@@ -252,13 +253,13 @@ export const TopBar: React.FC<TopBarProps> = ({
               <>
                 <div
                   onClick={onOpenSettings}
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-rose-400/80 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
+                  className="cursor-pointer hover:opacity-90 transition-opacity"
                   title="Click to view space & avatar settings"
                 >
-                  <img
+                  <SafeAvatar
                     src={partner ? partner.avatar : partnerAvatar}
-                    alt={partner ? partner.name : partnerName}
-                    className="w-full h-full object-cover"
+                    name={partner ? partner.name : partnerName}
+                    className="w-10 h-10 sm:w-11 sm:h-11 border-2 border-rose-400/80 shadow-xs"
                   />
                 </div>
 
@@ -271,10 +272,10 @@ export const TopBar: React.FC<TopBarProps> = ({
                     }`}
                     title={`You (${currentUserName || 'You'}) - Click to change photo`}
                   >
-                    <img
+                    <SafeAvatar
                       src={currentUserAvatar}
-                      alt={currentUserName || 'My Avatar'}
-                      className="w-full h-full object-cover"
+                      name={currentUserName || 'You'}
+                      className="w-full h-full"
                     />
                   </button>
                 )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, AlertTriangle, ShieldCheck, HeartCrack, Clock, X, Check, Users, Lock } from 'lucide-react';
+import { Trash2, AlertTriangle, ShieldCheck, HeartCrack, Clock, X, Check, Users, Lock, HeartPlus, Heart } from 'lucide-react';
 import { PendingSpaceDeletion } from '../types';
 
 interface MutualDeletionModalProps {
@@ -14,6 +14,7 @@ interface MutualDeletionModalProps {
   onRequestDeletion: (reason?: string) => void;
   onRespondDeletion: (agree: boolean) => void;
   onCancelDeletion: () => void;
+  onAddAnotherPartner?: () => void;
   isDark?: boolean;
 }
 
@@ -29,10 +30,12 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
   onRequestDeletion,
   onRespondDeletion,
   onCancelDeletion,
+  onAddAnotherPartner,
   isDark = true,
 }) => {
   const [confirmedCheckbox, setConfirmedCheckbox] = useState(false);
-  const [reason, setReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState('Breakup 💔');
+  const [customReason, setCustomReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -48,7 +51,8 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
   const handleInitiateRequest = () => {
     if (!confirmedCheckbox) return;
     setSubmitting(true);
-    onRequestDeletion(reason.trim() || undefined);
+    const finalReason = selectedReason === 'Other' ? (customReason.trim() || 'Breakup / Separation') : selectedReason;
+    onRequestDeletion(finalReason);
     setSubmitting(false);
   };
 
@@ -104,19 +108,19 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
             {hasActiveRequest ? (
               <AlertTriangle className="w-6 h-6 animate-pulse" />
             ) : (
-              <Trash2 className="w-6 h-6" />
+              <HeartCrack className="w-6 h-6" />
             )}
           </div>
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-rose-500 flex items-center gap-1">
-              <Lock className="w-3 h-3" /> Mutual Consent Privacy Guard
+              <Lock className="w-3 h-3" /> Partner Breakup & Deletion Guard
             </span>
             <h2 className="text-lg font-bold font-serif leading-tight">
               {isRecipient
                 ? 'Partner Requested Space Deletion'
                 : isRequester
                 ? 'Waiting for Partner Agreement'
-                : 'Delete Space Permanently'}
+                : 'Permanent Breakup & Deletion'}
             </h2>
           </div>
         </div>
@@ -134,12 +138,12 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
               <p className="font-semibold mb-2 flex items-center gap-2">
                 <HeartCrack className="w-4 h-4 text-rose-500 shrink-0" />
                 <span>
-                  {pendingDeletion?.requestedBy?.name || partnerName || 'Your partner'} wants to permanently delete this space (
+                  {pendingDeletion?.requestedBy?.name || partnerName || 'Your partner'} requested permanent deletion due to breakup (
                   <span className="font-mono font-bold">#{roomId}</span>).
                 </span>
               </p>
               <p className="text-xs opacity-90">
-                Because this is a private sanctuary, <span className="font-bold underline">{entityLabel} must both agree</span> before any data can be wiped. If you agree, all chat messages, photos, videos, and memories will be erased forever.
+                Because this is a private sanctuary, <span className="font-bold underline">{entityLabel} must both agree</span> before this space can be wiped. If you agree, all chat messages, photos, memories, and records will be permanently erased.
               </p>
             </div>
 
@@ -189,13 +193,13 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
             >
               <div className="flex items-center gap-2 font-semibold mb-2 text-amber-400">
                 <Clock className="w-4 h-4 animate-spin" />
-                <span>Waiting for {partnerName || 'Partner'} to approve</span>
+                <span>Waiting for {partnerName || 'Partner'} to approve breakup deletion</span>
               </div>
               <p className="text-xs opacity-90 mb-2">
-                Your request to permanently erase space <span className="font-mono font-bold">#{roomId}</span> is pending. A prompt has been sent to your partner.
+                Your request to permanently erase space <span className="font-mono font-bold">#{roomId}</span> is pending partner confirmation.
               </p>
               <p className="text-xs opacity-90">
-                The space will remain live and safe until they review and confirm agreement. If you changed your mind, you can cancel your request below at any time.
+                The space remains live until they review and confirm. You can cancel your request below at any time.
               </p>
             </div>
 
@@ -221,34 +225,46 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
                   : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}
             >
-              <p className="font-semibold text-slate-100 dark:text-slate-200 mb-1">
-                🔒 Permanent Storage Guarantee:
+              <p className="font-semibold text-slate-100 dark:text-slate-200 mb-1 flex items-center gap-1.5">
+                <HeartCrack className="w-4 h-4 text-rose-400" /> Permanent Partner Breakup & Deletion:
               </p>
               <p>
-                All messages, shared photos, audio recordings, and Spotify playlists in space{' '}
-                <span className="font-mono font-bold">#{roomId}</span> remain securely saved forever.
-              </p>
-              <p className="mt-1.5 text-rose-400 font-medium">
-                To prevent accidental loss or unilateral wipes, permanent deletion requires{' '}
-                <span className="underline font-bold">both parties to explicitly agree</span>.
+                To permanently disconnect and wipe space <span className="font-mono font-bold">#{roomId}</span> due to a breakup, both partners must agree for security. Once approved, all data is erased and you are free to add another partner.
               </p>
             </div>
 
+            {/* Reason selector pills */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 block">
-                Reason / Note for {partnerName || 'Partner'} (Optional):
+                Reason for Deletion:
               </label>
-              <input
-                type="text"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g. We decided to create a brand new space together..."
-                className={`w-full px-3.5 py-2.5 rounded-xl border text-xs outline-none transition-all ${
-                  isDark
-                    ? 'bg-slate-800 border-slate-700 text-slate-100 focus:border-rose-500'
-                    : 'bg-white border-slate-300 text-slate-900 focus:border-rose-500'
-                }`}
-              />
+              <div className="grid grid-cols-2 gap-2">
+                {['Breakup 💔', 'Mutual Separation', 'New Beginning', 'Other'].map((res) => (
+                  <button
+                    key={res}
+                    type="button"
+                    onClick={() => setSelectedReason(res)}
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold border transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                      selectedReason === res
+                        ? 'bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-900/30'
+                        : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-800'
+                    }`}
+                  >
+                    {res === 'Breakup 💔' && <HeartCrack className="w-3.5 h-3.5" />}
+                    <span>{res}</span>
+                  </button>
+                ))}
+              </div>
+
+              {selectedReason === 'Other' && (
+                <input
+                  type="text"
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  placeholder="Type specific reason..."
+                  className="w-full mt-2 px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-xs text-white outline-none focus:border-rose-500"
+                />
+              )}
             </div>
 
             {/* Checkbox confirmation */}
@@ -261,31 +277,46 @@ export const MutualDeletionModal: React.FC<MutualDeletionModalProps> = ({
                 className="mt-1 w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-600 cursor-pointer"
               />
               <span className="text-xs text-slate-400 group-hover:text-slate-300 leading-snug">
-                I understand that permanent deletion will irreversibly wipe all messages, media, and records for both members, and will only execute if {partnerName || 'my partner'} agrees.
+                I understand that permanent deletion due to breakup will irreversibly wipe all messages, media, and records for both members upon partner agreement.
               </span>
             </label>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2">
               <button
                 type="button"
                 id="btn-submit-mutual-deletion-request"
                 onClick={handleInitiateRequest}
                 disabled={!confirmedCheckbox || submitting}
-                className={`w-full sm:flex-1 py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 ${
+                className={`w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 ${
                   confirmedCheckbox && !submitting
                     ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-900/30 cursor-pointer active:scale-[0.98]'
                     : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                 }`}
               >
                 <Trash2 className="w-4 h-4" />
-                <span>Request Permanent Deletion</span>
+                <span>Request Permanent Breakup & Deletion</span>
               </button>
+
+              {onAddAnotherPartner && (
+                <button
+                  type="button"
+                  id="btn-add-another-partner"
+                  onClick={() => {
+                    onClose();
+                    onAddAnotherPartner();
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 cursor-pointer transition transform hover:scale-[1.01]"
+                >
+                  <HeartPlus className="w-4 h-4" />
+                  <span>💖 Add Another Partner</span>
+                </button>
+              )}
 
               <button
                 type="button"
                 onClick={onClose}
-                className={`w-full sm:w-auto py-3 px-4 rounded-xl font-medium text-xs transition-colors cursor-pointer ${
+                className={`w-full py-2.5 px-4 rounded-xl font-medium text-xs transition-colors cursor-pointer ${
                   isDark
                     ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'

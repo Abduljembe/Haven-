@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { SafeAvatar } from './common/SafeAvatar';
 import confetti from 'canvas-confetti';
 import {
   Send,
@@ -1310,14 +1311,10 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             >
               {/* Avatar Icon */}
               {!isMe ? (
-                <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-auto border border-rose-200">
-                  <img src={senderAvatarUrl} alt={senderDisplayName} className="w-full h-full object-cover" />
-                </div>
+                <SafeAvatar src={senderAvatarUrl} name={senderDisplayName} className="w-8 h-8 shrink-0 mt-auto border border-rose-200" />
               ) : (
                 currentUserAvatar ? (
-                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-auto border border-rose-300">
-                    <img src={currentUserAvatar} alt="You" className="w-full h-full object-cover" />
-                  </div>
+                  <SafeAvatar src={currentUserAvatar} name="You" className="w-8 h-8 shrink-0 mt-auto border border-rose-300" />
                 ) : null
               )}
 
@@ -1701,8 +1698,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         {/* Partner Typing Indicator */}
         {isPartnerTyping && (
           <div className="flex items-center gap-2 text-xs text-rose-500 animate-pulse pl-2">
-            <div className="w-6 h-6 rounded-full overflow-hidden border border-rose-200">
-              <img src={partner?.avatar || partnerAvatar} alt={partnerName} className="w-full h-full object-cover" />
+            <div className="w-6 h-6 shrink-0">
+              <SafeAvatar src={partner?.avatar || partnerAvatar} name={partnerName} className="w-6 h-6 border border-rose-200" />
             </div>
             <span>{partnerName} is typing a love note... 💕</span>
           </div>
