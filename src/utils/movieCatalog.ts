@@ -858,7 +858,22 @@ export async function searchYouTubeDirect(query: string): Promise<MediaItem[]> {
     console.warn('Direct YouTube search API error:', err);
   }
 
-  return [];
+  // Fallback for Vercel static deployments (where /api/youtube/search returns 404)
+  return [
+    {
+      id: `yt-fallback-${Date.now()}`,
+      title: trimmed,
+      artist: 'YouTube Cinema Stream',
+      type: 'youtube',
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(trimmed)}`,
+      embedUrl: `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(trimmed)}&autoplay=1`,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop&q=80',
+      description: `Streaming ${trimmed} on YouTube.`,
+      rating: 'HD Stream',
+      badge: 'YouTube 🎬',
+      source: 'youtube',
+    },
+  ];
 }
 
 // Live search online movies (Viduki.net and YouTube ONLY)
