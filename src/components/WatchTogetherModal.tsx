@@ -157,7 +157,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const squadMembersCount = roomMembers && roomMembers.length > 0 ? roomMembers.length : 1;
   const [currentMedia, setCurrentMedia] = useState<MediaItem>(FEATURED_VIDUKI_CATALOG[0]);
   const ytId = currentMedia.type === 'youtube' ? extractYouTubeId(currentMedia.url) : null;
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isPlayerActive, setIsPlayerActive] = useState<boolean>(() => {
     return Boolean(mediaSyncState?.isPlaying);
   });
@@ -282,7 +282,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Haven Cinema Ad Shield & Stop/Resume Protection States
-  const [adShieldActive, setAdShieldActive] = useState<boolean>(true);
+  const [adShieldActive, setAdShieldActive] = useState<boolean>(false);
   const [isEmbedSuspended, setIsEmbedSuspended] = useState<boolean>(false);
   const [screenActionIndicator, setScreenActionIndicator] = useState<'play' | 'pause' | null>(null);
   const [blockedAdsCount, setBlockedAdsCount] = useState<number>(0);
