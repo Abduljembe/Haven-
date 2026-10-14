@@ -37,10 +37,28 @@ export function buildVidukiStreamUrl(params: {
   const s = Math.max(1, Number(params.season) || 1);
   const e = Math.max(1, Number(params.episode) || 1);
 
-  if (isTv) {
-    return `https://viduki.net/${server}/tv/${cleanId}/${s}/${e}?color=${cleanColor}`;
+  if (server === 1 || server === 2) {
+    if (isTv) {
+      return `https://vidlink.pro/tv/${cleanId}/${s}/${e}?primaryColor=${cleanColor}&autoplay=true`;
+    }
+    return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true`;
   }
-  return `https://viduki.net/${server}/movie/${cleanId}?color=${cleanColor}`;
+
+  if (server === 3) {
+    if (isTv) {
+      return `https://vidsrc.to/embed/tv/${cleanId}/${s}/${e}`;
+    }
+    return `https://vidsrc.to/embed/movie/${cleanId}`;
+  }
+
+  if (server === 4) {
+    if (isTv) {
+      return `https://player.smashy.stream/tv/${cleanId}?s=${s}&e=${e}`;
+    }
+    return `https://player.smashy.stream/movie/${cleanId}`;
+  }
+
+  return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true`;
 }
 
 /**
