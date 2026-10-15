@@ -37,39 +37,39 @@ export function buildVidukiStreamUrl(params: {
   const s = Math.max(1, Number(params.season) || 1);
   const e = Math.max(1, Number(params.episode) || 1);
 
-  // Server 1: VidLink Fast Pro (1080p HD)
+  // Server 1: Viduki API 1 (Multi Server)
   if (server === 1) {
-    if (isTv) {
-      return `https://vidlink.pro/tv/${cleanId}/${s}/${e}?primaryColor=${cleanColor}&autoplay=true&quality=1080`;
-    }
-    return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true&quality=1080`;
-  }
-
-  // Server 2: Official Viduki API 1 (1080p HD)
-  if (server === 2) {
     if (isTv) {
       return `https://viduki.net/1/tv/${cleanId}/${s}/${e}?color=${cleanColor}&quality=1080`;
     }
     return `https://viduki.net/1/movie/${cleanId}?color=${cleanColor}&quality=1080`;
   }
 
-  // Server 3: Vidsrc Global Stream (1080p HD)
+  // Server 2: Viduki API 2 (Multi Language)
+  if (server === 2) {
+    if (isTv) {
+      return `https://viduki.net/2/tv/${cleanId}/${s}/${e}?color=${cleanColor}&quality=1080`;
+    }
+    return `https://viduki.net/2/movie/${cleanId}?color=${cleanColor}&quality=1080`;
+  }
+
+  // Server 3: Viduki API 3 (Multi Embeds)
   if (server === 3) {
     if (isTv) {
-      return `https://vidsrc.to/embed/tv/${cleanId}/${s}/${e}?ds_lang=en&quality=1080`;
+      return `https://viduki.net/3/tv/${cleanId}/${s}/${e}?color=${cleanColor}&quality=1080`;
     }
-    return `https://vidsrc.to/embed/movie/${cleanId}?ds_lang=en&quality=1080`;
+    return `https://viduki.net/3/movie/${cleanId}?color=${cleanColor}&quality=1080`;
   }
 
-  // Server 4: Smashy Stream Mirror (1080p HD)
+  // Server 4: Viduki API 4 (Premium Embeds)
   if (server === 4) {
     if (isTv) {
-      return `https://player.smashy.stream/tv/${cleanId}?s=${s}&e=${e}&quality=1080`;
+      return `https://viduki.net/4/tv/${cleanId}/${s}/${e}?color=${cleanColor}&quality=1080`;
     }
-    return `https://player.smashy.stream/movie/${cleanId}?quality=1080`;
+    return `https://viduki.net/4/movie/${cleanId}?color=${cleanColor}&quality=1080`;
   }
 
-  return `https://vidlink.pro/movie/${cleanId}?primaryColor=${cleanColor}&autoplay=true&quality=1080`;
+  return `https://viduki.net/1/movie/${cleanId}?color=${cleanColor}&quality=1080`;
 }
 
 /**

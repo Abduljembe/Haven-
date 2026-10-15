@@ -155,7 +155,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const isFriends = spaceType === 'friends';
   const effectiveGroupName = groupName || 'Squad Hangout';
   const squadMembersCount = roomMembers && roomMembers.length > 0 ? roomMembers.length : 1;
-  const [currentMedia, setCurrentMedia] = useState<MediaItem>(FEATURED_VIDUKI_CATALOG[0]);
+  const [currentMedia, setCurrentMedia] = useState<MediaItem>(FEATURED_MOVIES[0]);
   const ytId = currentMedia.type === 'youtube' ? extractYouTubeId(currentMedia.url) : null;
   const [isPlaying, setIsPlaying] = useState(true);
   const [isPlayerActive, setIsPlayerActive] = useState<boolean>(() => {
@@ -171,7 +171,7 @@ export const WatchTogetherModal: React.FC<WatchTogetherModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'youtube' | 'viduki'>('viduki');
   const [selectedCategory, setSelectedCategory] = useState<string>('viduki');
-  const [searchResults, setSearchResults] = useState<MediaItem[]>(FEATURED_VIDUKI_CATALOG);
+  const [searchResults, setSearchResults] = useState<MediaItem[]>([...FEATURED_MOVIES, ...FEATURED_VIDUKI_CATALOG]);
   const [isSearching, setIsSearching] = useState(false);
   const [showCatalog, setShowCatalog] = useState(true);
   const [showCustomLinkInput, setShowCustomLinkInput] = useState(false);
