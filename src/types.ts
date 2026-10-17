@@ -455,7 +455,8 @@ export type GameType =
   | 'spin_bottle'
   | 'buzzer_battle'
   | 'group_trivia'
-  | 'racing';
+  | 'racing'
+  | 'roblox_island';
 
 
 export interface KnowMeQuestion {

@@ -49,6 +49,7 @@ import { BattleshipGame } from './games/BattleshipGame';
 import { DotsAndBoxesGame } from './games/DotsAndBoxesGame';
 import { DeepCardsGame } from './games/DeepCardsGame';
 import { CoupleRacingGame } from './games/CoupleRacingGame';
+import { RobloxIslandGame } from './games/RobloxIslandGame';
 import { attachStreamToAudioContext, unlockAudioContext } from '../utils/sounds';
 
 interface CoupleGamesModalProps {
@@ -130,6 +131,7 @@ const GAMES_CATALOG: GameCatalogItem[] = [
   { id: 'this_or_that', name: 'This or That', category: 'Match', desc: 'Choose fast & compare compatibility', icon: Split, badge: 'Match', color: 'bg-violet-600' },
   { id: 'most_likely', name: 'Most Likely To', category: 'Duo Voting', desc: 'Vote who is most likely to do what', icon: Vote, badge: 'Voting', color: 'bg-blue-600' },
   { id: 'racing', name: 'Heart Rush Racing', category: 'Arcade', desc: 'Side-by-side 2-player racing & heart collection', icon: Trophy, badge: 'New 🏎️', color: 'bg-rose-600' },
+  { id: 'roblox_island', name: '3D Metaverse Island', category: '3D Roblox', desc: 'Explore a 3D blocky island & collect crystal hearts', icon: Sparkles, badge: '3D 🧊', color: 'bg-indigo-600' },
 ];
 
 export const CoupleGamesModal: React.FC<CoupleGamesModalProps> = ({
@@ -1262,6 +1264,19 @@ export const CoupleGamesModal: React.FC<CoupleGamesModalProps> = ({
               isPlayer1={isPlayer1}
               onBroadcastAction={(actionData) => onBroadcastGameAction('racing', actionData)}
               incomingAction={incomingGameData?.gameType === 'racing' ? incomingGameData.actionData : undefined}
+            />
+          )}
+
+          {activeTab === 'roblox_island' && (
+            <RobloxIslandGame
+              currentUserId={currentUserId}
+              currentUserName={currentUserName}
+              partnerName={partnerName}
+              currentUserAvatar={currentUserAvatar}
+              partnerAvatar={partner?.avatar}
+              isPlayer1={isPlayer1}
+              onBroadcastAction={(actionData) => onBroadcastGameAction('roblox_island', actionData)}
+              incomingAction={incomingGameData?.gameType === 'roblox_island' ? incomingGameData.actionData : undefined}
             />
           )}
 
