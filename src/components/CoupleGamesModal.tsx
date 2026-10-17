@@ -48,6 +48,7 @@ import { TruthOrDareGame } from './games/TruthOrDareGame';
 import { BattleshipGame } from './games/BattleshipGame';
 import { DotsAndBoxesGame } from './games/DotsAndBoxesGame';
 import { DeepCardsGame } from './games/DeepCardsGame';
+import { CoupleRacingGame } from './games/CoupleRacingGame';
 import { attachStreamToAudioContext, unlockAudioContext } from '../utils/sounds';
 
 interface CoupleGamesModalProps {
@@ -128,6 +129,7 @@ const GAMES_CATALOG: GameCatalogItem[] = [
   { id: 'truth_or_dare', name: 'Truth or Dare', category: 'Party', desc: 'Romantic truths & playful dares', icon: Dices, badge: 'Party', color: 'bg-indigo-600' },
   { id: 'this_or_that', name: 'This or That', category: 'Match', desc: 'Choose fast & compare compatibility', icon: Split, badge: 'Match', color: 'bg-violet-600' },
   { id: 'most_likely', name: 'Most Likely To', category: 'Duo Voting', desc: 'Vote who is most likely to do what', icon: Vote, badge: 'Voting', color: 'bg-blue-600' },
+  { id: 'racing', name: 'Heart Rush Racing', category: 'Arcade', desc: 'Side-by-side 2-player racing & heart collection', icon: Trophy, badge: 'New 🏎️', color: 'bg-rose-600' },
 ];
 
 export const CoupleGamesModal: React.FC<CoupleGamesModalProps> = ({
@@ -1247,6 +1249,19 @@ export const CoupleGamesModal: React.FC<CoupleGamesModalProps> = ({
               isPlayer1={isPlayer1}
               onBroadcastAction={(actionData) => onBroadcastGameAction('battleship', actionData)}
               incomingAction={incomingGameData?.gameType === 'battleship' ? incomingGameData.actionData : undefined}
+            />
+          )}
+
+          {activeTab === 'racing' && (
+            <CoupleRacingGame
+              currentUserId={currentUserId}
+              currentUserName={currentUserName}
+              partnerName={partnerName}
+              currentUserAvatar={currentUserAvatar}
+              partnerAvatar={partner?.avatar}
+              isPlayer1={isPlayer1}
+              onBroadcastAction={(actionData) => onBroadcastGameAction('racing', actionData)}
+              incomingAction={incomingGameData?.gameType === 'racing' ? incomingGameData.actionData : undefined}
             />
           )}
 

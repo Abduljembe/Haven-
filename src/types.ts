@@ -454,7 +454,8 @@ export type GameType =
   | 'truth_or_dare'
   | 'spin_bottle'
   | 'buzzer_battle'
-  | 'group_trivia';
+  | 'group_trivia'
+  | 'racing';
 
 
 export interface KnowMeQuestion {
