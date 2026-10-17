@@ -1,5 +1,6 @@
 import { MediaItem } from '../types';
 import { searchVidukiMovies, parseVidukiUrl, getVidukiConfig, FEATURED_VIDUKI_CATALOG } from './vidukiService';
+import { searchTmdbMovies, fetchTmdbTrending } from './tmdbService';
 
 export const FEATURED_MOVIES: MediaItem[] = [
   // --- Romance & Date Night Cinema ---
@@ -876,42 +877,39 @@ export async function searchYouTubeDirect(query: string): Promise<MediaItem[]> {
   ];
 }
 
-// Live search online movies (Viduki.net and YouTube ONLY)
+// Live search online movies using TMDB API + Viduki streaming
 export async function searchOnlineMovies(query: string, category: string = 'all'): Promise<MediaItem[]> {
   const trimmed = query.trim();
   if (!trimmed) {
     if (category === 'youtube') {
       return searchYouTubeDirect('trending relax music 4k');
     }
-    return FEATURED_VIDUKI_CATALOG;
+    const trending = await fetchTmdbTrending();
+    return trending.length > 0 ? trending : FEATURED_VIDUKI_CATALOG;
   }
 
-  // 1. If category is viduki or query is an IMDb / TMDB ID
-  const isImdb = /^tt\d+$/i.test(trimmed);
-  const isNumeric = /^\d+$/i.test(trimmed);
-  if (category === 'viduki' || isImdb || isNumeric) {
-    try {
-      const vidukiResults = await searchVidukiMovies(trimmed);
-      if (vidukiResults.length > 0) return vidukiResults;
-    } catch (err) {
-      console.warn('Viduki search failed:', err);
-    }
+  // 1. Check TMDB Search API (Primary Source)
+  try {
+    const tmdbResults = await searchTmdbMovies(trimmed);
+    if (tmdbResults.length > 0) return tmdbResults;
+  } catch (err) {
+    console.warn('TMDB search failed:', err);
   }
 
-  // 2. Check direct YouTube search
+  // 2. Viduki fallback search
+  try {
+    const vidukiResults = await searchVidukiMovies(trimmed);
+    if (vidukiResults.length > 0) return vidukiResults;
+  } catch (err) {
+    console.warn('Viduki search failed:', err);
+  }
+
+  // 3. YouTube direct search
   try {
     const ytResults = await searchYouTubeDirect(trimmed);
     if (ytResults.length > 0) return ytResults;
   } catch (err) {
     console.warn('Direct YouTube search failed:', err);
-  }
-
-  // 3. Viduki fallback search
-  try {
-    const vidukiResults = await searchVidukiMovies(trimmed);
-    if (vidukiResults.length > 0) return vidukiResults;
-  } catch (err) {
-    console.warn('Viduki fallback search failed:', err);
   }
 
   return [];
